@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dasturlash Safari - Maktab O'quvchilari uchun O'yin</title>
+    <style>
+      :root {
+        --primary: #3498db;
+        --success: #2ecc71;
+        --warning: #f39c12;
+        --danger: #e74c3c;
+        --dark: #2c3e50;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Comic Sans MS", cursive, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .game-container {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        max-width: 800px;
+        width: 100%;
+        text-align: center;
+      }
+
+      .game-header {
+        margin-bottom: 25px;
+      }
+
+      .game-title {
+        color: var(--dark);
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .game-subtitle {
+        color: var(--primary);
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+      }
+
+      .stats {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .stat-item {
+        background: var(--primary);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 15px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        min-width: 120px;
+      }
+
+      .stat-item.score {
+        background: var(--success);
+      }
+
+      .stat-item.lives {
+        background: var(--danger);
+      }
+
+      .game-content {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border: 3px solid var(--primary);
+      }
+
+      .task-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .task-title {
+        color: var(--dark);
+        font-size: 1.4rem;
+        margin-bottom: 15px;
+      }
+
+      .task-description {
+        color: #666;
+        font-size: 1.1rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+      }
+
+      .code-box {
+        background: #2d2d2d;
+        color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 1rem;
+        text-align: left;
+        margin-bottom: 20px;
+        border: 2px solid #444;
+      }
+
+      .choices {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .choice-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .choice-btn:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .choice-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      .choice-btn.correct {
+        background: var(--success);
+        transform: scale(1.05);
+      }
+
+      .choice-btn.wrong {
+        background: var(--danger);
+      }
+
+      .controls {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+
+      .control-btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .control-btn.primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .control-btn.success {
+        background: var(--success);
+        color: white;
+      }
+
+      .control-btn.warning {
+        background: var(--warning);
+        color: white;
+      }
+
+      .control-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+
+      .control-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+      }
+
+      .feedback {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        display: none;
+      }
+
+      .feedback.success {
+        background: #d4edda;
+        color: #155724;
+        border: 2px solid #c3e6cb;
+        display: block;
+      }
+
+      .feedback.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 2px solid #f5c6cb;
+        display: block;
+      }
+
+      .character {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .level-badge {
+        background: var(--warning);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+        margin-bottom: 15px;
+      }
+
+      @media (max-width: 768px) {
+        .choices {
+          grid-template-columns: 1fr;
+        }
+
+        .stats {
+          gap: 15px;
+        }
+
+        .stat-item {
+          min-width: 100px;
+          padding: 12px 20px;
+        }
+
+        .game-title {
+          font-size: 2rem;
+        }
+      }
+
+      .fun-fact {
+        background: #e8f4fc;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 20px;
+        border-left: 4px solid var(--primary);
+      }
+
+      .fun-fact h4 {
+        color: var(--primary);
+        margin-bottom: 8px;
+      }
+
+      .question-counter {
+        background: var(--dark);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+        margin-bottom: 15px;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="game-container">
+      <div class="game-header">
+        <div class="character">👨‍💻</div>
+        <h1 class="game-title">Dasturlash Safari</h1>
+        <p class="game-subtitle">Dasturlash sirlarini kashf eting!</p>
+      </div>
+
+      <div class="stats">
+        <div class="stat-item score">
+          <i class="fas fa-star"></i>
+          <div>Ball: <span id="score">0</span></div>
+        </div>
+        <div class="stat-item lives">
+          <i class="fas fa-heart"></i>
+          <div>Hayot: <span id="lives">3</span></div>
+        </div>
+        <div class="stat-item">
+          <i class="fas fa-flag"></i>
+          <div>Daraja: <span id="level">1</span></div>
+        </div>
+      </div>
+
+      <div class="game-content">
+        <div class="question-counter">
+          <i class="fas fa-list-ol"></i> Savol:
+          <span id="currentQuestion">1</span>/<span id="totalQuestions">5</span>
+        </div>
+
+        <div class="task-card">
+          <h3 class="task-title" id="taskTitle">Dasturlash Jumboqlari</h3>
+          <p class="task-description" id="taskDescription">
+            Quyidagi kodda bir xato bor. To'g'ri javobni tanlang!
+          </p>
+
+          <div class="code-box" id="codeBox">// Kod yuklanmoqda...</div>
+
+          <div class="choices" id="choicesContainer">
+            <!-- Tanlovlar JavaScript orqali yuklanadi -->
+          </div>
+
+          <div class="feedback" id="feedback"></div>
+
+          <div class="fun-fact" id="funFact">
+            <h4><i class="fas fa-lightbulb"></i> Qiziqarli Fact</h4>
+            <p>
+              Dasturlash - bu kompyuter bilan suhbatlashish kabi. Siz unga nima
+              qilish kerakligini aytasiz, u esa bajaradi!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="control-btn warning" onclick="showHint()" id="hintBtn">
+          <i class="fas fa-lightbulb"></i> Maslahat
+        </button>
+        <button
+          class="control-btn primary"
+          onclick="nextQuestion()"
+          id="nextBtn"
+          disabled
+        >
+          <i class="fas fa-arrow-right"></i> Keyingi Savol
+        </button>
+        <button class="control-btn success" onclick="restartGame()">
+          <i class="fas fa-redo"></i> Qayta Boshlash
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // O'yin ma'lumotlari
+      const gameData = {
+        score: 0,
+        lives: 3,
+        level: 1,
+        currentQuestionIndex: 0,
+        usedQuestions: new Set(), // Qayta ishlatilgan savollarni kuzatish
+        questions: [
+          {
+            id: 1,
+            question: "Quyidagi kodda nima xato bor?",
+            code: `var ism = "Ali"
+console.log("Mening ismim: " + ism)`,
+            choices: [
+              "Nuqtali vergul (;) yo'q",
+              "O'zgaruvchi nomi noto'g'ri",
+              "Console.log da xato bor",
+              "Hammasi to'g'ri",
+            ],
+            correct: 0,
+            hint: "JavaScriptda har bir qator nuqtali vergul (;) bilan tugashi kerak",
+            funFact:
+              "Dasturlashda nuqtali vergul - bu gapning oxiridagi nuqta kabi. U dasturga qayerda tugashini aytadi!",
+          },
+          {
+            id: 2,
+            question: "Bu kod nima chiqaradi?",
+            code: `var son = 5
+if (son > 3) {
+    console.log("Katta")
+} else {
+    console.log("Kichik")
+}`,
+            choices: [
+              "Katta",
+              "Kichik",
+              "Xato beradi",
+              "Hech narsa chiqarmaydi",
+            ],
+            correct: 0,
+            hint: "5 soni 3 dan katta, shuning uchun 'Katta' chiqadi",
+            funFact:
+              "If-else - bu yo'l ajralishi kabi. Agar shart to'g'ri bo'lsa, bir yo'ldan, aks holda boshqa yo'ldan borasiz!",
+          },
+          {
+            id: 3,
+            question: "Quyidagi sikl necha marta ishlaydi?",
+            code: `for (var i = 1; i <= 3; i++) {
+    console.log("Salom!")
+}`,
+            choices: ["3 marta", "4 marta", "2 marta", "Cheksiz"],
+            correct: 0,
+            hint: "i 1 dan boshlanib, 3 gacha bo'lgan hamma qiymatlarni oladi",
+            funFact:
+              "Sikllar - bir xil ishni qayta-qayta qilishning aqlli usuli. Bu takrorlanuvchi vazifalarni avtomatlashtiradi!",
+          },
+          {
+            id: 4,
+            question: "Massiv elementiga qanday murojaat qilamiz?",
+            code: `var mevalar = ["olma", "banan", "nok"]
+console.log(mevalar[...])`,
+            choices: ["[1]", "(1)", "{1}", "<1>"],
+            correct: 0,
+            hint: "Massiv elementlariga kvadrat qavs [] orqali murojaat qilamiz",
+            funFact:
+              "Massiv - bu ro'yxat kabi. Har bir elementning o'z raqami (indeksi) bor. Birinchi element 0-raqamda!",
+          },
+          {
+            id: 5,
+            question: "Funksiya qanday e'lon qilinadi?",
+            code: `... salom() {
+    console.log("Salom!")
+}`,
+            choices: ["function", "def", "fun", "method"],
+            correct: 0,
+            hint: "JavaScriptda funksiyani 'function' kalit so'zi bilan e'lon qilamiz",
+            funFact:
+              "Funksiyalar - bu retseptlar kabi. Ularni bir marta yozasiz va kerak bo'lganda chaqirasiz!",
+          },
+          {
+            id: 6,
+            question: "Qaysi kod to'g'ri?",
+            code: `// O'zgaruvchi yaratish`,
+            choices: [
+              "var yosh = 15;",
+              "yosh = 15",
+              "variable yosh = 15",
+              "let yosh: 15",
+            ],
+            correct: 0,
+            hint: "JavaScriptda o'zgaruvchi 'var', 'let' yoki 'const' bilan yaratiladi",
+            funFact:
+              "O'zgaruvchilar - bu quti kabi. Siz ularga ma'lumotlarni saqlaysiz va kerak bo'lganda olib ishlatasiz!",
+          },
+          {
+            id: 7,
+            question: "Bu kod nima qiladi?",
+            code: `var x = 10;
+var y = 5;
+var z = x + y;`,
+            choices: [
+              "x va y ni qo'shadi",
+              "x va y ni ayiradi",
+              "x va y ni ko'paytiradi",
+              "x va y ni bo'ladi",
+            ],
+            correct: 0,
+            hint: "+ belgisi qo'shish amalini bajaradi",
+            funFact:
+              "Dasturlashda matematik amallar - bu kalkulyatordagi kabi ishlaydi!",
+          },
+        ],
+      };
+
+      // O'yinni boshlash
+      function startGame() {
+        resetGame();
+        loadRandomQuestion();
+        updateStats();
+        updateQuestionCounter();
+      }
+
+      // O'yinni qayta boshlash
+      function resetGame() {
+        gameData.score = 0;
+        gameData.lives = 3;
+        gameData.level = 1;
+        gameData.currentQuestionIndex = 0;
+        gameData.usedQuestions.clear();
+        document.getElementById("nextBtn").disabled = true;
+        document.getElementById("hintBtn").disabled = false;
+      }
+
+      // Tasodifiy savol tanlash
+      function getRandomQuestion() {
+        const availableQuestions = gameData.questions.filter(
+          (q) => !gameData.usedQuestions.has(q.id)
+        );
+
+        if (availableQuestions.length === 0) {
+          // Barcha savollar ishlatilgan, tozalash
+          gameData.usedQuestions.clear();
+          return gameData.questions[
+            Math.floor(Math.random() * gameData.questions.length)
+          ];
+        }
+
+        const randomIndex = Math.floor(
+          Math.random() * availableQuestions.length
+        );
+        const question = availableQuestions[randomIndex];
+        gameData.usedQuestions.add(question.id);
+
+        return question;
+      }
+
+      // Savolni yuklash
+      function loadRandomQuestion() {
+        const question = getRandomQuestion();
+
+        document.getElementById("taskTitle").textContent = question.question;
+        document.getElementById("codeBox").textContent = question.code;
+        document.getElementById("funFact").innerHTML = `
+                <h4><i class="fas fa-lightbulb"></i> Qiziqarli Fact</h4>
+                <p>${question.funFact}</p>
+            `;
+
+        const choicesContainer = document.getElementById("choicesContainer");
+        choicesContainer.innerHTML = "";
+
+        question.choices.forEach((choice, index) => {
+          const button = document.createElement("button");
+          button.className = "choice-btn";
+          button.textContent = choice;
+          button.onclick = () => checkAnswer(index, question.correct);
+          choicesContainer.appendChild(button);
+        });
+
+        document.getElementById("feedback").style.display = "none";
+        document.getElementById("nextBtn").disabled = true;
+        document.getElementById("hintBtn").disabled = false;
+      }
+
+      // Javobni tekshirish
+      function checkAnswer(selectedIndex, correctIndex) {
+        const feedback = document.getElementById("feedback");
+        const choiceButtons = document.querySelectorAll(".choice-btn");
+        const nextBtn = document.getElementById("nextBtn");
+        const hintBtn = document.getElementById("hintBtn");
+
+        // Barcha tugmalarni o'chirish
+        choiceButtons.forEach((btn) => {
+          btn.disabled = true;
+          btn.style.transform = "none";
+        });
+
+        // To'g'ri javobni yoritish
+        choiceButtons[correctIndex].classList.add("correct");
+
+        if (selectedIndex === correctIndex) {
+          // To'g'ri javob
+          choiceButtons[selectedIndex].classList.add("correct");
+          feedback.textContent = "✅ Ajoyib! To'g'ri javob! +10 ball";
+          feedback.className = "feedback success";
+          gameData.score += 10;
+
+          // Darajani tekshirish
+          checkLevelUp();
+        } else {
+          // Noto'g'ri javob
+          choiceButtons[selectedIndex].classList.add("wrong");
+          feedback.textContent = "❌ Noto'g'ri javob. Bir hayot yo'qotdingiz!";
+          feedback.className = "feedback error";
+          gameData.lives--;
+
+          if (gameData.lives <= 0) {
+            setTimeout(() => {
+              gameOver();
+            }, 1500);
+          }
+        }
+
+        feedback.style.display = "block";
+        nextBtn.disabled = false;
+        hintBtn.disabled = true;
+        updateStats();
+      }
+
+      // Darajani oshirishni tekshirish
+      function checkLevelUp() {
+        const oldLevel = gameData.level;
+        gameData.level = Math.floor(gameData.score / 50) + 1;
+
+        if (gameData.level > oldLevel) {
+          setTimeout(() => {
+            alert(
+              `🎉 Tabriklaymiz! ${gameData.level}-darajaga o'tdingiz!\nSiz haqiqiy dasturchi bo'layapsiz!`
+            );
+          }, 500);
+        }
+      }
+
+      // Keyingi savol
+      function nextQuestion() {
+        gameData.currentQuestionIndex++;
+        updateQuestionCounter();
+        loadRandomQuestion();
+      }
+
+      // Maslahat ko'rsatish
+      function showHint() {
+        const currentQuestion = getCurrentQuestion();
+        if (currentQuestion) {
+          alert(`💡 Maslahat: ${currentQuestion.hint}`);
+          // Maslahat berilganda ball kamaytirish
+          gameData.score = Math.max(0, gameData.score - 5);
+          updateStats();
+        }
+      }
+
+      // Hozirgi savolni olish
+      function getCurrentQuestion() {
+        const currentId = Array.from(gameData.usedQuestions).pop();
+        return gameData.questions.find((q) => q.id === currentId);
+      }
+
+      // O'yinni qayta boshlash
+      function restartGame() {
+        if (
+          confirm(
+            "Haqiqatan ham o'yinni qayta boshlashni xohlaysizmi?\nHozirgi ballingiz saqlanmaydi."
+          )
+        ) {
+          startGame();
+        }
+      }
+
+      // O'yin tugashi
+      function gameOver() {
+        const finalScore = gameData.score;
+        const finalLevel = gameData.level;
+
+        alert(
+          `💔 O'yin tugadi!\n\n🏆 Yakuniy ball: ${finalScore}\n⭐ Daraja: ${finalLevel}\n\nYana urinib ko'ring - har bir urinish yangi tajriba!`
+        );
+        startGame();
+      }
+
+      // Statistikani yangilash
+      function updateStats() {
+        document.getElementById("score").textContent = gameData.score;
+        document.getElementById("lives").textContent = gameData.lives;
+        document.getElementById("level").textContent = gameData.level;
+      }
+
+      // Savol sonini yangilash
+      function updateQuestionCounter() {
+        document.getElementById("currentQuestion").textContent =
+          gameData.currentQuestionIndex + 1;
+        document.getElementById("totalQuestions").textContent =
+          gameData.questions.length;
+      }
+
+      // O'yinni boshlash
+      document.addEventListener("DOMContentLoaded", startGame);
+    </script>
+  </body>
+</html>
